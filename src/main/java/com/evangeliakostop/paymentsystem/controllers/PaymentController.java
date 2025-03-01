@@ -28,19 +28,21 @@ public class PaymentController {
     
     @PostMapping(value = "/init", produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<PaymentResponse> initPayment(@RequestBody PaymentRequest request) {
-        PaymentResponse response = null;
+        PaymentResponse response = service.initiatePayment(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/status/{transactionId}", produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<PaymentStatusResponse> getStatus() {
-        PaymentStatusResponse response = null;
+    @PostMapping(value = "/submit", produces = {"application/json"}, consumes = {"application/json"})
+    public ResponseEntity<PaymentResponse> submitPayment(@RequestBody PaymentRequest request) {
+        PaymentResponse response = service.submitPayment();
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/history/{userId}", produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<PaymentHistoryResponse> getHistory() {
-        PaymentHistoryResponse response = null;
+    @PostMapping(value = "/getInfo", produces = {"application/json"}, consumes = {"application/json"})
+    public ResponseEntity<PaymentResponse> getPaymentInfo(@RequestBody PaymentRequest request) {
+        PaymentResponse response = service.getPaymentInfo();
         return ResponseEntity.ok(response);
     }
+
+
 }

@@ -33,12 +33,12 @@ public class RestConfig {
     }
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder, CloseableHttpClient httpClient) {
+    public RestTemplate restTemplatePayments(RestTemplateBuilder builder, CloseableHttpClient httpClient) {
 
         final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setHttpClient(httpClient);
 
-        final RestTemplate restTemplate = builder.build();
+        final RestTemplate restTemplate = builder.build(); // TODO
         log.info("Generic Spring's RestTemplate Initialized");
 
         return restTemplate;

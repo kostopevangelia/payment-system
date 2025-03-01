@@ -1,13 +1,11 @@
 package com.evangeliakostop.paymentsystem.exceptions;
 
 import com.evangeliakostop.paymentsystem.utils.enumeration.ErrorLevelEnum;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
-@Data
+@RequiredArgsConstructor
 public class CustomException extends RuntimeException {
 
     private final String message;
