@@ -11,5 +11,5 @@ public enum PaymentType {
     DEBIT_CARD("Debit Card"),
     IBAN("IBAN");
 
-    private String description;
+    private final String description;
 }
