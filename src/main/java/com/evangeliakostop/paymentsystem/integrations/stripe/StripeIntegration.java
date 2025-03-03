@@ -21,10 +21,10 @@ public class StripeIntegration {
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplateStripe;
 
-    public StripeIntegration(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public StripeIntegration(RestTemplate restTemplateStripe) {
+        this.restTemplateStripe = restTemplateStripe;
     }
 
     public PaymentIntentDto initPayment(Long amount, String currency, PaymentType paymentType) throws StripeException {
@@ -54,7 +54,7 @@ public class StripeIntegration {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestParams, headers);
 
         try {
-            ResponseEntity<PaymentIntentDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PaymentIntentDto.class);
+            ResponseEntity<PaymentIntentDto> response = restTemplateStripe.exchange(url, HttpMethod.POST, entity, PaymentIntentDto.class);
             if (response.getBody() != null) {
                 return response.getBody();
             } else {
