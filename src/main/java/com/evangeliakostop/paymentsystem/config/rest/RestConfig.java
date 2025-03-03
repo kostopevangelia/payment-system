@@ -1,4 +1,4 @@
-package com.evangeliakostop.paymentsystem.config;
+package com.evangeliakostop.paymentsystem.config.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -6,6 +6,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,18 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @Slf4j
 public class RestConfig {
+
+    private final CorrelationIdInterceptor correlationIdInterceptor;
+
+    @Autowired
+    public RestConfig(CorrelationIdInterceptor correlationIdInterceptor) {
+        this.correlationIdInterceptor = correlationIdInterceptor;
+    }
+
+    @Bean
+    public RestTemplateBuilder restTemplateBuilder() {
+        return new RestTemplateBuilder();
+    }
 
     @Bean
     public RequestConfig requestConfig() {
@@ -33,12 +46,14 @@ public class RestConfig {
     }
 
     @Bean
-    public RestTemplate restTemplatePayments(RestTemplateBuilder builder, CloseableHttpClient httpClient) {
+    public RestTemplate restTemplateStripe(final RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
 
         final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setHttpClient(httpClient);
+        factory.setConnectTimeout(30000);
 
-        final RestTemplate restTemplate = builder.build(); // TODO
+        final RestTemplate restTemplate = builder.customizers(new RestLoggingCustomiser(factory, correlationIdInterceptor, new RestInterceptor())).
+                build();
         log.info("Generic Spring's RestTemplate Initialized");
 
         return restTemplate;
