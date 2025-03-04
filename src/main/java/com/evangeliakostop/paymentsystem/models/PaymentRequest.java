@@ -1,13 +1,12 @@
 package com.evangeliakostop.paymentsystem.models;
 
 import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 public class PaymentRequest {
@@ -19,6 +18,6 @@ public class PaymentRequest {
     private LocalDateTime timestamp;
     private String senderAccount;
     private String receiverAccount;
-    private PaymentType paymentType;
+    private String paymentType;
     private String userId;
 }
