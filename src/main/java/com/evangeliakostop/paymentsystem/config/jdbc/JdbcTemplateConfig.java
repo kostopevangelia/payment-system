@@ -19,7 +19,7 @@ public class JdbcTemplateConfig {
      *
      * @return the data source.
      */
-    @Bean("paymentsystem")
+    @Bean("paymentsDbTemplate")
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource paymentsDatasource() {
         return DataSourceBuilder.create().build();
@@ -33,7 +33,7 @@ public class JdbcTemplateConfig {
      */
     @Primary
     @Bean
-    public JdbcTemplate jdbcTemplate(@Qualifier("paymentsystem") final DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(@Qualifier("paymentsDbTemplate") final DataSource dataSource) {
         return new JdbcTemplate(dataSource, false);
     }
 
