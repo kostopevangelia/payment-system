@@ -5,13 +5,19 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
-@RequiredArgsConstructor
 public class CustomException extends RuntimeException {
 
     private final String message;
-    private final String traceId; // TODO
+    private final String exceptionMessage;
     private final String transactionId;
     private final ErrorLevelEnum errorLevelEnum;
 
 
+    public CustomException(String message, String exceptionMessage, String transactionId, ErrorLevelEnum errorLevelEnum) {
+        super();
+        this.message = message;
+        this.exceptionMessage = exceptionMessage;
+        this.transactionId = transactionId;
+        this.errorLevelEnum = errorLevelEnum;
+    }
 }
