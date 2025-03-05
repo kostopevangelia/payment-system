@@ -4,6 +4,7 @@ import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.services.PaymentService;
 import com.evangeliakostop.paymentsystem.utils.UniqueIdGenerator;
+import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentType;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class PaymentController {
         PaymentResponse response = service.submitPayment(request, transactionId);
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setAmount("40000");
-        paymentResponse.setPaymentType("Card");
+        paymentResponse.setPaymentType(PaymentType.CARD);
         paymentResponse.setCurrency("USD");
         return ResponseEntity.ok(paymentResponse);
     }
