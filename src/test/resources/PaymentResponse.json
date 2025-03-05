@@ -1,0 +1,11 @@
+{
+  "transactionId": "txn854c1c375ce7ccfc95026c68ea44c2fe4860f",
+  "amount": "100",
+  "currency": "usd",
+  "timestamp": null,
+  "paymentType": "CARD",
+  "status": "INITIALIZED",
+  "fraudScore": 0.0,
+  "message": null,
+  "fraud": false
+}
