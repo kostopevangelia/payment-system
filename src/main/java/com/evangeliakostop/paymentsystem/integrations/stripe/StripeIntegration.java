@@ -50,9 +50,8 @@ public class StripeIntegration {
                 throw new Exception("Error response from stripe: " + response.getStatusCode());
             }
         } catch (final Exception e) {
-            log.error(e.getMessage(), e);
-            throw new CustomException("Error while initiating payment",
-                    null,
+            throw new CustomException( e.getMessage(),
+                    "Error while initiating payment",
                     null,
                     ErrorLevelEnum.APPLICATION_ERROR);
         }

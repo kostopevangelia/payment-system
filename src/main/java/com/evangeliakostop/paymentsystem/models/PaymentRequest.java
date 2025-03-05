@@ -1,6 +1,7 @@
 package com.evangeliakostop.paymentsystem.models;
 
 import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentType;
+import com.evangeliakostop.paymentsystem.utils.enumeration.TransactionType;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,8 +17,7 @@ public class PaymentRequest {
     private Long amount;
     private String currency;
     private LocalDateTime timestamp;
-    private String senderAccount;
-    private String receiverAccount;
-    private String paymentType;
+    private TransactionType transactionType;
+    private PaymentType paymentType;
     private String userId;
 }

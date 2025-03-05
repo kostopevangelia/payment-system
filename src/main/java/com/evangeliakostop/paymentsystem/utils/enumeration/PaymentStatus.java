@@ -7,10 +7,11 @@ import lombok.Getter;
 @Getter
 public enum PaymentStatus {
 
-    PENDING(0, "Payment is still processed."),
-    CAPTURED(1, "Payment was successfully completed."),
-    FAILED(2, "Payment failed due to an error."),
-    REFUNDED(3, "Payment was refunded.");
+    INITIALIZED(0, "Initialized"),
+    PENDING(1, "Pending"),
+    COMPLETED(2, "Completed"),
+    FAILED(3, "Failed"),
+    CANCELLED(4, "Cancelled");
 
     private Integer code;
     private String description;

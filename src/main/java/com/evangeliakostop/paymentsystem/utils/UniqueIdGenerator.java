@@ -18,6 +18,7 @@ public class UniqueIdGenerator {
 
         // Hash the random data with SHA-56 to get a 256-bit hash
         String fullToken = DigestUtils.sha256Hex(randomBytes);
+        fullToken = "txn" + fullToken;
 
         // Take only the first 160 bits (40 hex characters)
         return fullToken.substring(0, 40);

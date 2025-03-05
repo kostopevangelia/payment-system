@@ -5,10 +5,9 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum PaymentType {
-
-    CARD("card"),
-    IBAN("iban");
+public enum TransactionType {
+    PAYMENT("PAYMENT"),
+    REFUND("REFUND");
 
     private final String description;
 
