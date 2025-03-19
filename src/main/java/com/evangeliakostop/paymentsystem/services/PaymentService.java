@@ -1,18 +1,21 @@
 package com.evangeliakostop.paymentsystem.services;
 
+import com.evangeliakostop.paymentsystem.common.utils.UniqueIdGenerator;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.ErrorLevelEnum;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentStatus;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentType;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
 import com.evangeliakostop.paymentsystem.integrations.stripe.StripeIntegration;
+import com.evangeliakostop.paymentsystem.models.CommonResponse;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.persistence.PaymentsDBAccess;
-import com.evangeliakostop.paymentsystem.utils.UniqueIdGenerator;
-import com.evangeliakostop.paymentsystem.utils.enumeration.ErrorLevelEnum;
-import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentStatus;
-import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.SQLException;
 
 @Service
 @Slf4j
@@ -37,10 +40,25 @@ public class PaymentService {
             paymentIntent = stripe.initPayment(request.getAmount(), request.getCurrency(), request.getPaymentType().getDescription(), transactionId);
             response = createClientResponse(paymentIntent, transactionId);
             paymentsDBAccess.insertInitTransaction(transactionId, request.getTransactionType(), request.getAmount(), request.getCurrency());
+        } catch (CustomException e) {
+
+            log.error("Payment initiation failed: {}", e.getMessage());
+            throw new CustomException(
+                    e.getMessage(),
+                    e.getMessage(),
+                    e.getErrorCode(),
+                    null,
+                    ErrorLevelEnum.APPLICATION_ERROR
+            );
         } catch (Exception e) {
             log.error("Method initiatePayment - Exception", e);
-            throw new CustomException(e.getMessage(), "Error while initiating the payment: {}", null, ErrorLevelEnum.APPLICATION_ERROR);
-            //throw new RuntimeException(e.getMessage());
+            throw new CustomException(
+                    e.getMessage(),
+                    "Error while initiating the payment: {}",
+                    ErrorLevelEnum.APPLICATION_ERROR.getCode(),
+                    null,
+                    ErrorLevelEnum.APPLICATION_ERROR);
+
         }
 
         return response;
@@ -48,6 +66,11 @@ public class PaymentService {
 
     private PaymentResponse createClientResponse(PaymentIntentDto paymentIntentDto, String transactionId) {
         return PaymentResponse.builder()
+                .commonResponse(new CommonResponse(
+                        200,
+                        "Successful Transaction",
+                        "Payment was successfully initiated"
+                ))
                 .transactionId(transactionId)
                 .amount(String.valueOf(paymentIntentDto.getAmount()))
                 .currency(paymentIntentDto.getCurrency())
@@ -66,5 +89,4 @@ public class PaymentService {
         stripe.getInfo();
         return null;
     }
-
 }

@@ -1,4 +1,4 @@
-package com.evangeliakostop.paymentsystem.utils;
+package com.evangeliakostop.paymentsystem.common.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

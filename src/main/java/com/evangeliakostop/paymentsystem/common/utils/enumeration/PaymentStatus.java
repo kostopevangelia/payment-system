@@ -1,4 +1,4 @@
-package com.evangeliakostop.paymentsystem.utils.enumeration;
+package com.evangeliakostop.paymentsystem.common.utils.enumeration;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

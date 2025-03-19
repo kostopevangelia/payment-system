@@ -1,6 +1,6 @@
 package com.evangeliakostop.paymentsystem.models;
 
-import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentStatus;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

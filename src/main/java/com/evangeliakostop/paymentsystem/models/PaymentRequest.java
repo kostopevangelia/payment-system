@@ -1,7 +1,7 @@
 package com.evangeliakostop.paymentsystem.models;
 
-import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentType;
-import com.evangeliakostop.paymentsystem.utils.enumeration.TransactionType;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentType;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.TransactionType;
 import lombok.*;
 
 import java.time.LocalDateTime;
