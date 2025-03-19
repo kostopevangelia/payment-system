@@ -1,7 +1,7 @@
 package com.evangeliakostop.paymentsystem.persistence;
 
-import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentStatus;
-import com.evangeliakostop.paymentsystem.utils.enumeration.TransactionType;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentStatus;
+import com.evangeliakostop.paymentsystem.common.utils.enumeration.TransactionType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

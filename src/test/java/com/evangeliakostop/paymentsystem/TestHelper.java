@@ -3,8 +3,6 @@ package com.evangeliakostop.paymentsystem;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
-import com.evangeliakostop.paymentsystem.utils.UniqueIdGenerator;
-import com.evangeliakostop.paymentsystem.utils.enumeration.PaymentStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.stripe.model.PaymentIntent;
@@ -13,8 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import static com.evangeliakostop.paymentsystem.utils.UniqueIdGenerator.generateSecureToken;
 
 public class TestHelper {
 
