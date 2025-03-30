@@ -2,11 +2,15 @@ package com.evangeliakostop.paymentsystem.config.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +50,7 @@ public class RestConfig {
     }
 
     @Bean
+    @Qualifier("restTemplateStripe")
     public RestTemplate restTemplateStripe(final RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
 
         final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
@@ -55,6 +60,28 @@ public class RestConfig {
         final RestTemplate restTemplate = builder.customizers(new RestLoggingCustomiser(factory, correlationIdInterceptor, new RestInterceptor())).
                 build();
         log.info("Generic Spring's RestTemplate Initialized");
+
+        return restTemplate;
+    }
+
+    @Bean
+    @Qualifier("restTemplatePaymentMs")
+    public RestTemplate restTemplatePaymentMs(final RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
+
+        // Create CookieStore to store session cookies
+        CookieStore cookieStore = new BasicCookieStore();
+
+        CloseableHttpClient customHttpClient = HttpClients.custom()
+                .setDefaultCookieStore(cookieStore)
+                .setDefaultRequestConfig(requestConfig())  // Apply the custom request configuration
+                .build();
+
+        final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(customHttpClient);
+        factory.setConnectTimeout(30000);
+
+        final RestTemplate restTemplate = builder.customizers(new RestLoggingCustomiser(factory, correlationIdInterceptor, new RestInterceptor())).
+                build();
+        log.info("Generic Spring's RestTemplate Initialized for payments ms");
 
         return restTemplate;
     }
