@@ -3,16 +3,17 @@ package com.evangeliakostop.paymentsystem.integrations.stripe;
 import com.evangeliakostop.paymentsystem.common.utils.enumeration.ErrorLevelEnum;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
-import com.stripe.exception.CardException;
-import com.stripe.exception.InvalidRequestException;
-import com.stripe.exception.StripeException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -25,18 +26,28 @@ public class StripeIntegration {
 
     private final RestTemplate restTemplateStripe;
 
-    public StripeIntegration(RestTemplate restTemplateStripe) {
+    public StripeIntegration(@Qualifier("restTemplateStripe")RestTemplate restTemplateStripe) {
         this.restTemplateStripe = restTemplateStripe;
     }
 
-    public PaymentIntentDto initPayment(Long amount, String currency, String paymentType, String transactionId) throws StripeException {
+    /**
+     * Init Payment
+     *
+     * @param amount        Long
+     * @param currency      String
+     * @param paymentType   String
+     * @param transactionId String
+     * @return the PaymentIntentDto
+     */
+    public PaymentIntentDto initPayment(Long amount, String currency, String paymentType, String transactionId) {
 
         String url = "https://api.stripe.com/v1/payment_intents";
 
         MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
         requestParams.add("amount", String.valueOf(amount));
         requestParams.add("currency", currency);
-        requestParams.add("payment_method_types[]", paymentType);
+        requestParams.add("automatic_payment_methods[enabled]", "true");
+        requestParams.add("automatic_payment_methods[allow_redirects]", "never");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -44,6 +55,7 @@ public class StripeIntegration {
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestParams, headers);
         ResponseEntity<PaymentIntentDto> response = null;
+
         try {
             response = restTemplateStripe.exchange(url, HttpMethod.POST, entity, PaymentIntentDto.class);
             if (response.getBody() != null) {
@@ -51,52 +63,62 @@ public class StripeIntegration {
             } else {
                 throw new Exception("Error response from stripe: " + response.getStatusCode());
             }
-        } catch (CardException e) {
-            // Handle card-related errors (e.g., declined card, insufficient funds)
-            log.error("Card error: {}", e.getMessage());
-            throw new CustomException(
-                    "Card error: " + e.getMessage(),
-                    "Payment failed: " + e.getMessage(),
-                    Integer.parseInt(e.getStripeError().getCode()),
-                    null,// Stripe-specific error code
-                    ErrorLevelEnum.APPLICATION_ERROR
-            );
-        } catch (InvalidRequestException e) {
-            // Handle invalid request errors (e.g., missing required parameters)
-            log.error("Invalid request: {}", e.getMessage());
-            throw new CustomException(
-                    "Invalid request: " + e.getMessage(),
-                    "Payment initiation failed due to invalid request",
-                    Integer.parseInt(e.getStripeError().getCode()),
-                    null,
-                    ErrorLevelEnum.APPLICATION_ERROR
-            );
-        } catch (StripeException e) {
-            // Handle other Stripe-related errors
-            log.error("Stripe error: {}", e.getMessage());
-            throw new CustomException(
-                    "Stripe error: " + e.getMessage(),
-                    "Error while initiating payment",
-                    Integer.parseInt(e.getStripeError().getCode()),
-                    null,
-                    ErrorLevelEnum.APPLICATION_ERROR
-            );
         } catch (Exception e) {
             // Handle generic exceptions
-            log.error("Unknown error: {}", e.getMessage());
+            log.error("initPayment: Stripe error: {}", e.getMessage());
             throw new CustomException(
+                    "StripeIntegration - error",
                     e.getMessage(),
-                    "Error while initiating payment",
-                    500,
+                    transactionId,
+                    ErrorLevelEnum.APPLICATION_ERROR
+            );
+        }
+    }
+
+    /**
+     * Confirm Intent.
+     *
+     * @param paymentIntent PaymentIntentDto
+     * @return PaymentIntentDto
+     */
+    public PaymentIntentDto confirmIntent(PaymentIntentDto paymentIntent) {
+        String url = "https://api.stripe.com/v1/payment_intents/{id}/confirm";  // URL with path parameter
+
+        // Prepare the request parameters
+        MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
+        requestParams.add("payment_method", "pm_card_visa");
+
+        // Set the HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.set("Authorization", "Bearer " + secretKey);  // Use your Stripe secret key here
+
+        // Create the request entity
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestParams, headers);
+
+        // Prepare the URL template variables (in this case, the PaymentIntent ID)
+        Map<String, String> uriVariables = new HashMap<>();
+        uriVariables.put("id", paymentIntent.getId());  // Set the PaymentIntent ID
+
+        try {
+            // Perform the HTTP request and exchange the response
+            ResponseEntity<PaymentIntentDto> response = restTemplateStripe.exchange(url, HttpMethod.POST, entity, PaymentIntentDto.class, uriVariables);
+
+            if (response.getBody() != null) {
+                return response.getBody();
+            } else {
+                throw new Exception("Error response from stripe: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            // Handle generic exceptions
+            log.error("confirmIntent: Stripe error: {}", e.getMessage());
+            throw new CustomException(
+                    "StripeIntegration - error",
+                    e.getMessage(),
                     null,
                     ErrorLevelEnum.APPLICATION_ERROR
             );
         }
     }
 
-    public void submitPayment() {
-    }
-
-    public void getInfo() {
-    }
 }
