@@ -2,11 +2,7 @@ package com.evangeliakostop.paymentsystem.controllers;
 
 import com.evangeliakostop.paymentsystem.common.utils.CommonService;
 import com.evangeliakostop.paymentsystem.common.utils.UniqueIdGenerator;
-import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentType;
-import com.evangeliakostop.paymentsystem.exceptions.CustomException;
-import com.evangeliakostop.paymentsystem.models.CommonResponse;
-import com.evangeliakostop.paymentsystem.models.PaymentRequest;
-import com.evangeliakostop.paymentsystem.models.PaymentResponse;
+import com.evangeliakostop.paymentsystem.models.*;
 import com.evangeliakostop.paymentsystem.services.PaymentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -39,49 +35,54 @@ public class PaymentController {
     @PostMapping(value = "/init", produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<Object> initPayment(@RequestBody PaymentRequest request, HttpSession session) {
 
+        String transactionId = UniqueIdGenerator.generateSecureToken();
+        session.setAttribute("transactionId", transactionId);
         try {
-            PaymentResponse response = paymentService.initiatePayment(request);
-            if (response != null) {
-                session.setAttribute("transactionId", response.getTransactionId());
-                return ResponseEntity.ok().body(response);
+            PaymentInfo paymentInfo = paymentService.initiatePayment(request,transactionId, session.getId());
+            if (paymentInfo == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new CommonResponse(500, "Error", "Unexpected error"));
             }
+
+
+            PaymentResponse response = new PaymentResponse();
+            response.setCode(200);
+            response.setMessage("Intent Created");
+            response.setPaymentInfo(paymentInfo);
+            return ResponseEntity.ok().body(response);
+
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new CommonResponse(500, "Error", "Unexpected error"));
-
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getErrorCode())
-                    .body(new CommonResponse(e.getErrorCode(), "Bad Request", "400 Bad Request on POST request"));
+                    .body(new CommonResponse(500, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "Unknown cause"));
         }
     }
 
-    @PostMapping(value = "/submit", produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<PaymentResponse> submitPayment(@RequestBody PaymentRequest request, HttpSession session) {
+    @PostMapping(value = "/confirm", produces = {"application/json"}, consumes = {"application/json"})
+    public ResponseEntity<Object> confirmPayment(@RequestBody ConfirmPaymentRequest request, HttpSession session) {
 
         String transactionId = (String) session.getAttribute("transactionId");
         if (transactionId == null) {
             transactionId = UniqueIdGenerator.generateSecureToken();
         }
 
-        PaymentResponse response = paymentService.submitPayment(request, transactionId);
-        PaymentResponse paymentResponse = new PaymentResponse();
-        paymentResponse.setAmount("40000");
-        paymentResponse.setPaymentType(PaymentType.CARD);
-        paymentResponse.setCurrency("USD");
+        try {
+            PaymentInfo paymentInfo = paymentService.confirmPayment(request, transactionId);
+            if (paymentInfo == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new CommonResponse(500, "Error", "Unexpected error"));
+            }
+            session.setAttribute("transactionId", paymentInfo.getTransactionId());
 
-        return ResponseEntity.ok(paymentResponse);
-    }
+            PaymentResponse response = new PaymentResponse();
+            response.setCode(200);
+            response.setMessage("Intent Confirmed");
+            response.setPaymentInfo(paymentInfo);
+            return ResponseEntity.ok().body(response);
 
-    @PostMapping(value = "/getInfo", produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<PaymentResponse> getPaymentInfo(@RequestBody PaymentRequest request, HttpSession session) {
-
-        String transactionId = (String) session.getAttribute("transactionId");
-        if (transactionId == null) {
-            transactionId = UniqueIdGenerator.generateSecureToken();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(500, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "Unknown cause"));
         }
-
-        PaymentResponse response = paymentService.getPaymentInfo(request, transactionId);
-        return ResponseEntity.ok(response);
     }
-
 
 }
