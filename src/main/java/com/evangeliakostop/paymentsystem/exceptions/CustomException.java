@@ -7,19 +7,16 @@ import lombok.Getter;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class CustomException extends RuntimeException {
-
     private final String message;
     private final String exceptionMessage;
-    private final int errorCode;
     private final String transactionId;
     private final ErrorLevelEnum errorLevelEnum;
 
 
-    public CustomException(String message, String exceptionMessage, int errorCode, String transactionId, ErrorLevelEnum errorLevelEnum) {
+    public CustomException(String exceptionMessage, String message, String transactionId, ErrorLevelEnum errorLevelEnum) {
         super();
-        this.message = message;
         this.exceptionMessage = exceptionMessage;
-        this.errorCode = errorCode;
+        this.message = message;
         this.transactionId = transactionId;
         this.errorLevelEnum = errorLevelEnum;
     }

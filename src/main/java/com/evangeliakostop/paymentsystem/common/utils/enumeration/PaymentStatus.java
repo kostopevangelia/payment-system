@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum PaymentStatus {
 
-    INITIALIZED(0, "Initialized"),
+    REQUIRES_PAYMENT_METHOD(0, "requires_payment_method"),
     PENDING(1, "Pending"),
     COMPLETED(2, "Completed"),
     FAILED(3, "Failed"),

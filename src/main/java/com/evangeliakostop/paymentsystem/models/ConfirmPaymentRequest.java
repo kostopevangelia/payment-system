@@ -1,5 +1,6 @@
 package com.evangeliakostop.paymentsystem.models;
 
+import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class PaymentResponse extends CommonResponse {
-    private PaymentInfo paymentInfo;
+public class ConfirmPaymentRequest extends PaymentRequest {
+    private PaymentIntentDto paymentIntentDto;
 }

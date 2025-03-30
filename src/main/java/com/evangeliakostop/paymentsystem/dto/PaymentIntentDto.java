@@ -3,10 +3,12 @@ package com.evangeliakostop.paymentsystem.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
 
+@Builder
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,7 +23,7 @@ public class PaymentIntentDto {
 
     @JsonProperty("client_secret")
     private String clientSecret; // Used for client-side retrieval
-
+    @JsonProperty("currency")
     private String currency; // Three-letter ISO currency code
 
     private String customer; // Nullable customer ID
@@ -55,7 +57,7 @@ public class PaymentIntentDto {
 
     @JsonProperty("statement_descriptor_suffix")
     private String statementDescriptorSuffix; // Additional info for statement descriptor
-
+    @JsonProperty("status")
     private String status; // Status of the payment intent (enum)
 
 }

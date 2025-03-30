@@ -18,6 +18,6 @@ public class PaymentRequest {
     private String currency;
     private LocalDateTime timestamp;
     private TransactionType transactionType;
-    private PaymentType paymentType;
+    private String paymentType;
     private String userId;
 }
