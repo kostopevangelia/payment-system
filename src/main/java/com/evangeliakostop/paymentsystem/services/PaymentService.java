@@ -29,6 +29,14 @@ public class PaymentService {
         this.paymentsDBAccess = paymentsDBAccess;
     }
 
+    /**
+     * Initiate Payment Service.
+     *
+     * @param request       PaymentRequest
+     * @param transactionId String
+     * @param sessionId     String
+     * @return PaymentInfo
+     */
     public PaymentInfo initiatePayment(PaymentRequest request, String transactionId, String sessionId) {
 
         try {
@@ -57,6 +65,13 @@ public class PaymentService {
         }
     }
 
+    /**
+     * Confirm Payment Service.
+     *
+     * @param request       ConfirmPaymentRequest
+     * @param transactionId String
+     * @return PaymentInfo
+     */
     public PaymentInfo confirmPayment(ConfirmPaymentRequest request, String transactionId) {
 
         try {
