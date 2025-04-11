@@ -21,7 +21,7 @@ import java.util.Objects;
 public class PaymentMsIntegration {
     private final RestTemplate restTemplatePaymentsMs;
 
-    public PaymentMsIntegration(@Qualifier("restTemplatePaymentMs") RestTemplate restTemplatePaymentsMs) {
+    public PaymentMsIntegration(RestTemplate restTemplatePaymentsMs) {
         this.restTemplatePaymentsMs = restTemplatePaymentsMs;
     }
 
@@ -46,7 +46,12 @@ public class PaymentMsIntegration {
             if (response.getStatusCode().is2xxSuccessful()) {
                 return Objects.requireNonNull(response.getBody()).getPaymentInfo();
             } else {
-                throw new RuntimeException("Error calling other endpoint: " + response.getStatusCode());
+                throw new CustomException(
+                        "PaymentMs internal communication - error",
+                        "Cannot communicate with confirmPayment",
+                        null,
+                        ErrorLevelEnum.APPLICATION_ERROR
+                );
             }
         } catch (Exception e) {
             // Handle generic exceptions

@@ -22,11 +22,11 @@ public class StripeIntegration {
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
 
-    private final String secretKey = "sk_test_51Qxp74BTS3g9NVDlCdHfk9K1beKmz07Bib0gKIJ6bKHiIk5pbmH9riUaiAiXe1zQ8RvIuDZ2uzzsdWCgCZlprmHK00Yjj4BHFm";
+    private static final String SECRET_KEY = "sk_test_51Qxp74BTS3g9NVDlCdHfk9K1beKmz07Bib0gKIJ6bKHiIk5pbmH9riUaiAiXe1zQ8RvIuDZ2uzzsdWCgCZlprmHK00Yjj4BHFm";
 
     private final RestTemplate restTemplateStripe;
 
-    public StripeIntegration(@Qualifier("restTemplateStripe")RestTemplate restTemplateStripe) {
+    public StripeIntegration(RestTemplate restTemplateStripe) {
         this.restTemplateStripe = restTemplateStripe;
     }
 
@@ -51,7 +51,7 @@ public class StripeIntegration {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "Bearer " + secretKey);  // Use your Stripe secret key here
+        headers.set("Authorization", "Bearer " + SECRET_KEY);  // Use your Stripe secret key here
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestParams, headers);
         ResponseEntity<PaymentIntentDto> response = null;
@@ -61,7 +61,12 @@ public class StripeIntegration {
             if (response.getBody() != null) {
                 return response.getBody();
             } else {
-                throw new Exception("Error response from stripe: " + response.getStatusCode());
+                throw new CustomException(
+                        "Error response from stripe:",
+                        "Response Body cannot be null",
+                        null,
+                        ErrorLevelEnum.APPLICATION_ERROR
+                );
             }
         } catch (Exception e) {
             // Handle generic exceptions
@@ -91,7 +96,7 @@ public class StripeIntegration {
         // Set the HTTP headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "Bearer " + secretKey);  // Use your Stripe secret key here
+        headers.set("Authorization", "Bearer " + SECRET_KEY);  // Use your Stripe secret key here
 
         // Create the request entity
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestParams, headers);
@@ -107,7 +112,12 @@ public class StripeIntegration {
             if (response.getBody() != null) {
                 return response.getBody();
             } else {
-                throw new Exception("Error response from stripe: " + response.getStatusCode());
+                throw new CustomException(
+                        "Error response from stripe:",
+                        "Response Body cannot be null",
+                        null,
+                        ErrorLevelEnum.APPLICATION_ERROR
+                );
             }
         } catch (Exception e) {
             // Handle generic exceptions

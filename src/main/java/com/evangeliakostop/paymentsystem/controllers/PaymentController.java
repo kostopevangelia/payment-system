@@ -24,12 +24,10 @@ public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentService paymentService;
-    private final CommonService commonService;
 
     @Autowired
     public PaymentController(PaymentService paymentService, CommonService commonService) {
         this.paymentService = paymentService;
-        this.commonService = commonService;
     }
 
     @PostMapping(value = "/init", produces = {"application/json"}, consumes = {"application/json"})
@@ -38,7 +36,7 @@ public class PaymentController {
         String transactionId = UniqueIdGenerator.generateSecureToken();
         session.setAttribute("transactionId", transactionId);
         try {
-            PaymentInfo paymentInfo = paymentService.initiatePayment(request,transactionId, session.getId());
+            PaymentInfo paymentInfo = paymentService.initiatePayment(request, transactionId, session.getId());
             if (paymentInfo == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new CommonResponse(500, "Error", "Unexpected error"));
