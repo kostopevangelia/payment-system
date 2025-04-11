@@ -66,7 +66,7 @@ class PaymentsDBAccessTest {
         when(paymentsDbTemplate.update(
                 eq(INSERT_TRANSACTION),
                 eq(transactionId),
-                eq(PaymentStatus.INITIALIZED.getDescription()),
+                eq(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription()),
                 eq(TransactionType.PAYMENT.getDescription()),
                 eq(amount),
                 eq(0.0),  // This is for non-refund case
@@ -82,7 +82,7 @@ class PaymentsDBAccessTest {
         verify(paymentsDbTemplate, times(1)).update(
                 eq(INSERT_TRANSACTION),
                 eq(transactionId),
-                eq(PaymentStatus.INITIALIZED.getDescription()),
+                eq(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription()),
                 eq(TransactionType.PAYMENT.getDescription()),
                 eq(amount),
                 eq(0.0),

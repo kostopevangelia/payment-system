@@ -3,9 +3,10 @@ package com.evangeliakostop.paymentsystem.services;
 import com.evangeliakostop.paymentsystem.TestHelper;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
+import com.evangeliakostop.paymentsystem.integrations.PaymentMsIntegration;
 import com.evangeliakostop.paymentsystem.integrations.stripe.StripeIntegration;
+import com.evangeliakostop.paymentsystem.models.PaymentInfo;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
-import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.persistence.PaymentsDBAccess;
 import com.evangeliakostop.paymentsystem.common.utils.enumeration.TransactionType;
 import com.stripe.exception.StripeException;
@@ -25,7 +26,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class PaymentServiceTest {
+class PaymentInfoServiceTest {
+
+    @Mock
+    private PaymentMsIntegration paymentMsIntegration;
 
     @Mock
     private StripeIntegration stripeIntegration;
@@ -38,21 +42,21 @@ class PaymentServiceTest {
 
     @Test
     void initiatePaymentSuccess() throws StripeException {
-        String jsonFilePath = "src/test/resources/StripeResponse_init.json";
+        String jsonFilePath = "src/test/resources/StripeResponse_init_status_succeeded.json";
         PaymentIntentDto paymentIntentDto = TestHelper.readPaymentIntentFromFile(jsonFilePath);
 
         String jsonFilePath2 = "src/test/resources/PaymentRequest.json";
         PaymentRequest request = TestHelper.parseJsonToPaymentRequest(jsonFilePath2);
 
-        String jsonFilePath3 = "src/test/resources/PaymentResponse.json";
-        PaymentResponse mockedResponse = TestHelper.createPaymentResponseFromJson(jsonFilePath3);
+        String jsonFilePath3 = "src/test/resources/PaymentInfo.json";
+        PaymentInfo mockedResponse = TestHelper.createPaymentInfoFromJson(jsonFilePath3);
 
         when(stripeIntegration.initPayment(anyLong(), anyString(), anyString(), anyString())).thenReturn(paymentIntentDto);
         doNothing().when(paymentsDBAccess).insertInitTransaction(anyString(), eq(TransactionType.PAYMENT), anyLong(), anyString());
 
-        PaymentResponse response = paymentService.initiatePayment(request);
+        PaymentInfo paymentInfo = paymentService.initiatePayment(request, "transactionId", "sessionId");
 
-        assertEquals(mockedResponse, response);
+        assertEquals(mockedResponse, paymentInfo);
 
     }
 
@@ -63,11 +67,27 @@ class PaymentServiceTest {
 
         when(stripeIntegration.initPayment(anyLong(), anyString(), anyString(), anyString())).thenReturn(null);
 
-        assertThrows(CustomException.class, () -> paymentService.initiatePayment(request));
+        assertThrows(CustomException.class, () -> paymentService.initiatePayment(request,"transactionId", "sessionId"));
     }
 
 
     @Test
-    void initiatePayment() {
+    void initiatePayment_StatusNotSucceeded() {
+        String jsonFilePath = "src/test/resources/StripeResponse_init_status_not_succeeded.json";
+        PaymentIntentDto paymentIntentDto = TestHelper.readPaymentIntentFromFile(jsonFilePath);
+
+        String jsonFilePath2 = "src/test/resources/PaymentRequest.json";
+        PaymentRequest request = TestHelper.parseJsonToPaymentRequest(jsonFilePath2);
+
+        String jsonFilePath3 = "src/test/resources/PaymentInfo.json";
+        PaymentInfo mockedResponse = TestHelper.createPaymentInfoFromJson(jsonFilePath3);
+
+        when(stripeIntegration.initPayment(anyLong(), anyString(), anyString(), anyString())).thenReturn(paymentIntentDto);
+        when(paymentMsIntegration.confirmPayment(any(), any(), anyString())).thenReturn(mockedResponse);
+        doNothing().when(paymentsDBAccess).insertInitTransaction(anyString(), eq(TransactionType.PAYMENT), anyLong(), anyString());
+
+        PaymentInfo paymentInfo = paymentService.initiatePayment(request, "transactionId", "sessionId");
+
+        assertEquals(mockedResponse, paymentInfo);
     }
 }

@@ -26,7 +26,7 @@ public class StripeIntegration {
 
     private final RestTemplate restTemplateStripe;
 
-    public StripeIntegration(RestTemplate restTemplateStripe) {
+    public StripeIntegration(@Qualifier("restTemplateStripe") RestTemplate restTemplateStripe) {
         this.restTemplateStripe = restTemplateStripe;
     }
 

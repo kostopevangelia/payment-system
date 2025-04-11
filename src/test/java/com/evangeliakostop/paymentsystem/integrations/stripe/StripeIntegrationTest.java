@@ -3,7 +3,6 @@ package com.evangeliakostop.paymentsystem.integrations.stripe;
 import com.evangeliakostop.paymentsystem.TestHelper;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
-import com.stripe.exception.StripeException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +14,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -30,9 +30,9 @@ class StripeIntegrationTest {
     private StripeIntegration stripeIntegration;
 
     @Test
-    void initPayment_Success() throws StripeException {
+    void initPayment_Success() {
 
-        String jsonFilePath = "src/test/resources/StripeResponse_init.json";
+        String jsonFilePath = "src/test/resources/StripeResponse_init_status_succeeded.json";
         PaymentIntentDto paymentIntentDto = TestHelper.readPaymentIntentFromFile(jsonFilePath);
 
         ResponseEntity<PaymentIntentDto> output = ResponseEntity.ok().body(paymentIntentDto);
@@ -44,13 +44,34 @@ class StripeIntegrationTest {
     }
 
     @Test
-    void initPayment_Success_Null() throws StripeException {
+    void initPayment_Success_Null() {
 
         ResponseEntity<PaymentIntentDto> output = ResponseEntity.ok().body(null);
         when(restTemplateStripe.exchange(anyString(), any(HttpMethod.class), any(), eq(PaymentIntentDto.class))).thenReturn(output);
 
-        //PaymentIntentDto response = stripeIntegration.initPayment(4L, "usd", "card", "txn");
-
         assertThrows(CustomException.class, () -> stripeIntegration.initPayment(4L, "usd", "card", "txn"));
+    }
+
+    @Test
+    void confirmIntent_success() {
+        String jsonFilePath = "src/test/resources/StripeResponse_Confirm.json";
+        PaymentIntentDto mockedResponse = TestHelper.readPaymentIntentFromFile(jsonFilePath);
+
+        ResponseEntity<PaymentIntentDto> output = ResponseEntity.ok(mockedResponse);
+
+        when(restTemplateStripe.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                any(),
+                eq(PaymentIntentDto.class),
+                anyMap()
+        )).thenReturn(output);
+
+        PaymentIntentDto request = new PaymentIntentDto();
+        request.setId(mockedResponse.getId()); // just needs ID to build the URL
+
+        PaymentIntentDto response = stripeIntegration.confirmIntent(request);
+
+        assertEquals(mockedResponse, response);
     }
 }

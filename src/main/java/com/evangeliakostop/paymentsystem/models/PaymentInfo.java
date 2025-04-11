@@ -1,8 +1,5 @@
 package com.evangeliakostop.paymentsystem.models;
 
-import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentStatus;
-import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentType;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

@@ -3,8 +3,8 @@ package com.evangeliakostop.paymentsystem.controllers;
 import com.evangeliakostop.paymentsystem.TestHelper;
 import com.evangeliakostop.paymentsystem.common.utils.CommonService;
 import com.evangeliakostop.paymentsystem.common.utils.enumeration.ErrorLevelEnum;
-import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
+import com.evangeliakostop.paymentsystem.models.PaymentInfo;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.services.PaymentService;
@@ -20,7 +20,8 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -39,16 +40,19 @@ class PaymentControllerTest {
     @Test
     void initPayment_Success() {
 
-        String jsonFilePath = "src/test/resources/StripeResponse_init.json";
-        PaymentIntentDto paymentIntentDto = TestHelper.readPaymentIntentFromFile(jsonFilePath);
+        when(session.getId()).thenReturn("mock-session-id");
+        doNothing().when(session).setAttribute(anyString(), any());
 
         String jsonFilePath2 = "src/test/resources/PaymentRequest.json";
         PaymentRequest request = TestHelper.parseJsonToPaymentRequest(jsonFilePath2);
 
-        String jsonFilePath3 = "src/test/resources/PaymentResponse.json";
-        PaymentResponse mockedResponse = TestHelper.createPaymentResponseFromJson(jsonFilePath3);
+        String jsonFilePath3 = "src/test/resources/PaymentInfo.json";
+        PaymentInfo mockedPaymentInfo = TestHelper.createPaymentInfoFromJson(jsonFilePath3);
 
-        when(paymentService.initiatePayment(any())).thenReturn(mockedResponse);
+        String jsonFilePath4 = "src/test/resources/PaymentResponse.json";
+        PaymentResponse mockedResponse = TestHelper.createPaymentResponseFromJson(jsonFilePath4);
+
+        when(paymentService.initiatePayment(any(), anyString(), anyString())).thenReturn(mockedPaymentInfo);
 
         ResponseEntity<Object> response = controller.initPayment(request, session);
 
@@ -62,7 +66,7 @@ class PaymentControllerTest {
         String jsonFilePath2 = "src/test/resources/PaymentRequest.json";
         PaymentRequest request = TestHelper.parseJsonToPaymentRequest(jsonFilePath2);
 
-        when(paymentService.initiatePayment(any())).thenReturn(null);
+        when(paymentService.initiatePayment(any(), anyString(), anyString())).thenReturn(null);
 
         ResponseEntity<Object> response = controller.initPayment(request, session);
 
@@ -75,10 +79,10 @@ class PaymentControllerTest {
         String jsonFilePath2 = "src/test/resources/PaymentRequest.json";
         PaymentRequest request = TestHelper.parseJsonToPaymentRequest(jsonFilePath2);
 
-        when(paymentService.initiatePayment(any())).thenThrow(new CustomException("", "", 400, "", ErrorLevelEnum.APPLICATION_ERROR));
+        when(paymentService.initiatePayment(any(), anyString(), anyString())).thenThrow(new CustomException("", "", "", ErrorLevelEnum.APPLICATION_ERROR));
 
         ResponseEntity<Object> response = controller.initPayment(request, session);
 
-        assertEquals(400, response.getStatusCode().value());
+        assertEquals(500, response.getStatusCode().value());
     }
 }

@@ -1,6 +1,7 @@
 package com.evangeliakostop.paymentsystem;
 
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
+import com.evangeliakostop.paymentsystem.models.PaymentInfo;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,18 @@ public class TestHelper {
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to read PaymentIntentDto from file", e);
+        }
+    }
+
+    public static PaymentInfo createPaymentInfoFromJson(String jsonFilePath) {
+        try {
+            // Read JSON as string
+            String jsonContent = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+            // Deserialize JSON into PaymentRequest
+            return objectMapper.readValue(jsonContent, PaymentInfo.class);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading JSON file: " + e.getMessage(), e);
         }
     }
 

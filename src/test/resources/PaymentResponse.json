@@ -1,11 +1,14 @@
 {
-  "transactionId": "txn854c1c375ce7ccfc95026c68ea44c2fe4860f",
-  "amount": "100",
-  "currency": "usd",
-  "timestamp": null,
-  "paymentType": "CARD",
-  "status": "INITIALIZED",
-  "fraudScore": 0.0,
-  "message": null,
-  "fraud": false
+  "code": 200,
+  "message": "Intent Created",
+  "paymentInfo": {
+    "paymentType": "card",
+    "fraudScore": 0.0,
+    "fraud": false,
+    "client_secret": "pi_3RCi0RBTS3g9NVDl00iN0cqD_secret_eLxKqeiRyQ36R1WyX1k2W9OR4",
+    "transactionId": "txn18722df50404612ca60e3f778aade85559c23",
+    "amount": "100",
+    "currency": "usd",
+    "status": "succeeded"
+  }
 }

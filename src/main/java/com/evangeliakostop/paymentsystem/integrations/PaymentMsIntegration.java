@@ -19,10 +19,10 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class PaymentMsIntegration {
-    private final RestTemplate restTemplatePaymentsMs;
+    private final RestTemplate restTemplatePaymentMs;
 
-    public PaymentMsIntegration(RestTemplate restTemplatePaymentsMs) {
-        this.restTemplatePaymentsMs = restTemplatePaymentsMs;
+    public PaymentMsIntegration(@Qualifier("restTemplatePaymentMs") RestTemplate restTemplatePaymentMs) {
+        this.restTemplatePaymentMs = restTemplatePaymentMs;
     }
 
     public PaymentInfo confirmPayment(PaymentRequest request, PaymentIntentDto paymentIntent, String sessionId) {
@@ -41,7 +41,7 @@ public class PaymentMsIntegration {
         HttpEntity<ConfirmPaymentRequest> entity = new HttpEntity<>(prepareConfirmRequest, headers);
 
         try {
-            ResponseEntity<PaymentResponse> response = restTemplatePaymentsMs.exchange(url, HttpMethod.POST, entity, PaymentResponse.class);
+            ResponseEntity<PaymentResponse> response = restTemplatePaymentMs.exchange(url, HttpMethod.POST, entity, PaymentResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 return Objects.requireNonNull(response.getBody()).getPaymentInfo();

@@ -50,6 +50,7 @@ public class RestConfig {
     }
 
     @Bean
+    @Qualifier("restTemplateStripe")
     public RestTemplate restTemplateStripe(final RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
 
         final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
@@ -64,6 +65,7 @@ public class RestConfig {
     }
 
     @Bean
+    @Qualifier("restTemplatePaymentMs")
     public RestTemplate restTemplatePaymentMs(final RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
 
         // Create CookieStore to store session cookies
