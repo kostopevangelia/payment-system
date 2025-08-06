@@ -19,8 +19,8 @@ import java.util.Map;
 @Service
 public class StripeIntegration {
 
-    @Value("${stripe.secret.key}")
-    private String stripeSecretKey;
+//    @Value("${stripe.secret.key}")
+//    private String stripeSecretKey;
 
     private static final String SECRET_KEY = "sk_test_51Qxp74BTS3g9NVDlCdHfk9K1beKmz07Bib0gKIJ6bKHiIk5pbmH9riUaiAiXe1zQ8RvIuDZ2uzzsdWCgCZlprmHK00Yjj4BHFm";
 
