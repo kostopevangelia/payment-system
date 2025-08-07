@@ -44,13 +44,16 @@ public class PaymentService {
             /* PaymentIntent */
             PaymentIntentDto paymentIntent = stripe.initPayment(request.getAmount(), request.getCurrency(), request.getPaymentType(), transactionId);
 
+            PaymentInfo paymentInfo;
             /* If status is requires_payment_method, then call /confirm */
-            if (paymentIntent.getStatus().equals(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription())) {
-                return paymentMsIntegration.confirmPayment(request, paymentIntent, sessionId);
+            if (!paymentIntent.getStatus().equals(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription())) {
+                paymentInfo = createClientResponse(paymentIntent, transactionId);
+            } else {
+                paymentInfo = paymentMsIntegration.confirmPayment(request, paymentIntent, sessionId);
             }
             paymentsDBAccess.insertInitTransaction(transactionId, request.getTransactionType(), request.getAmount(), request.getCurrency());
 
-            return createClientResponse(paymentIntent, transactionId);
+            return paymentInfo;
 
         } catch (Exception e) {
             log.error("Method initiatePayment - Exception: {}", e.getMessage());
