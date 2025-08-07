@@ -21,12 +21,14 @@ public class PaymentService {
     private final PaymentMsIntegration paymentMsIntegration;
     private final StripeIntegration stripe;
     private final PaymentsDBAccess paymentsDBAccess;
+    private final FraudService fraudService;
 
     @Autowired
-    public PaymentService(PaymentMsIntegration paymentMsIntegration, StripeIntegration stripe, PaymentsDBAccess paymentsDBAccess) {
+    public PaymentService(PaymentMsIntegration paymentMsIntegration, StripeIntegration stripe, PaymentsDBAccess paymentsDBAccess, FraudService fraudService) {
         this.paymentMsIntegration = paymentMsIntegration;
         this.stripe = stripe;
         this.paymentsDBAccess = paymentsDBAccess;
+        this.fraudService = fraudService;
     }
 
     /**
@@ -52,6 +54,8 @@ public class PaymentService {
                 paymentInfo = paymentMsIntegration.confirmPayment(request, paymentIntent, sessionId);
             }
             paymentsDBAccess.insertInitTransaction(transactionId, request.getTransactionType(), request.getAmount(), request.getCurrency());
+
+            fraudService.getfraudPrediction();
 
             return paymentInfo;
 
