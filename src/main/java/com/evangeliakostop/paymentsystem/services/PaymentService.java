@@ -4,9 +4,7 @@ import com.evangeliakostop.paymentsystem.common.utils.enumeration.ErrorLevelEnum
 import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentStatus;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
-import com.evangeliakostop.paymentsystem.integrations.PaymentMsIntegration;
 import com.evangeliakostop.paymentsystem.integrations.stripe.StripeIntegration;
-import com.evangeliakostop.paymentsystem.models.ConfirmPaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentInfo;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.persistence.PaymentsDBAccess;
@@ -18,13 +16,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PaymentService {
 
-    private final PaymentMsIntegration paymentMsIntegration;
     private final StripeIntegration stripe;
     private final PaymentsDBAccess paymentsDBAccess;
 
     @Autowired
-    public PaymentService(PaymentMsIntegration paymentMsIntegration, StripeIntegration stripe, PaymentsDBAccess paymentsDBAccess) {
-        this.paymentMsIntegration = paymentMsIntegration;
+    public PaymentService(StripeIntegration stripe, PaymentsDBAccess paymentsDBAccess) {
         this.stripe = stripe;
         this.paymentsDBAccess = paymentsDBAccess;
     }
@@ -34,58 +30,25 @@ public class PaymentService {
      *
      * @param request       PaymentRequest
      * @param transactionId String
-     * @param sessionId     String
      * @return PaymentInfo
      */
-    public PaymentInfo initiatePayment(PaymentRequest request, String transactionId, String sessionId) {
+    public PaymentInfo initiatePayment(PaymentRequest request, String transactionId) {
 
         try {
 
             /* PaymentIntent */
             PaymentIntentDto paymentIntent = stripe.initPayment(request.getAmount(), request.getCurrency(), request.getPaymentType(), transactionId);
 
-            PaymentInfo paymentInfo;
             /* If status is requires_payment_method, then call /confirm */
-            if (!paymentIntent.getStatus().equals(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription())) {
-                paymentInfo = createClientResponse(paymentIntent, transactionId);
-            } else {
-                paymentInfo = paymentMsIntegration.confirmPayment(request, paymentIntent, sessionId);
+            if (paymentIntent.getStatus().equals(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription())) {
+                paymentIntent = stripe.confirmIntent(paymentIntent);
             }
             paymentsDBAccess.insertInitTransaction(transactionId, request.getTransactionType(), request.getAmount(), request.getCurrency());
 
-            return paymentInfo;
+            return createClientResponse(paymentIntent, transactionId);
 
         } catch (Exception e) {
             log.error("Method initiatePayment - Exception: {}", e.getMessage());
-
-            throw new CustomException(
-                    "PaymentService - error",
-                    e.getMessage(),
-                    transactionId,
-                    ErrorLevelEnum.APPLICATION_ERROR
-            );
-
-        }
-    }
-
-    /**
-     * Confirm Payment Service.
-     *
-     * @param request       ConfirmPaymentRequest
-     * @param transactionId String
-     * @return PaymentInfo
-     */
-    public PaymentInfo confirmPayment(ConfirmPaymentRequest request, String transactionId) {
-
-        try {
-
-            /* confirm Intent */
-            PaymentIntentDto confirmPaymentIntent = stripe.confirmIntent(request.getPaymentIntentDto());
-
-            return createClientResponse(confirmPaymentIntent, transactionId);
-
-        } catch (Exception e) {
-            log.error("Method confirmPayment - Exception: {}", e.getMessage());
 
             throw new CustomException(
                     "PaymentService - error",
