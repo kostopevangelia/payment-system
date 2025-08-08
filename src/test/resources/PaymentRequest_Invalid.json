@@ -3,7 +3,7 @@
   "iban": null,
   "transactionId": null,
   "amount": 100,
-  "currency": "USD",
+  "currency": "U",
   "timestamp": "2025-03-04T19:11:52",
   "paymentType": "CARD",
   "transactionType": "PAYMENT",
