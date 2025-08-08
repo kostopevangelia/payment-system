@@ -85,4 +85,24 @@ public class RestConfig {
 
         return restTemplate;
     }
+
+    @Bean
+    @Qualifier("restTemplateFraudApi")
+    public RestTemplate restTemplateFraudApi(RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
+        CookieStore cookieStore = new BasicCookieStore();
+        CloseableHttpClient customHttpClient = HttpClients.custom()
+                .setDefaultCookieStore(cookieStore)
+                .setDefaultRequestConfig(requestConfig())
+                .build();
+
+        final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(customHttpClient);
+        factory.setConnectTimeout(30000);
+
+        final RestTemplate restTemplate = builder.customizers(new RestLoggingCustomiser(factory, correlationIdInterceptor, new RestInterceptor()))
+                .build();
+
+        log.info("Generic Spring's RestTemplate Initialized for fraud api");
+
+        return restTemplate;
+    }
 }
