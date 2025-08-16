@@ -5,6 +5,7 @@ import com.evangeliakostop.paymentsystem.common.utils.enumeration.PaymentStatus;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
 import com.evangeliakostop.paymentsystem.integrations.stripe.StripeIntegration;
+import com.evangeliakostop.paymentsystem.models.FraudPrediction;
 import com.evangeliakostop.paymentsystem.models.PaymentInfo;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.persistence.PaymentsDBAccess;
@@ -18,11 +19,13 @@ public class PaymentService {
 
     private final StripeIntegration stripe;
     private final PaymentsDBAccess paymentsDBAccess;
+    private final FraudService fraudService;
 
     @Autowired
-    public PaymentService(StripeIntegration stripe, PaymentsDBAccess paymentsDBAccess) {
+    public PaymentService(StripeIntegration stripe, PaymentsDBAccess paymentsDBAccess, FraudService fraudService) {
         this.stripe = stripe;
         this.paymentsDBAccess = paymentsDBAccess;
+        this.fraudService = fraudService;
     }
 
     /**
@@ -35,17 +38,18 @@ public class PaymentService {
     public PaymentInfo initiatePayment(PaymentRequest request, String transactionId) {
 
         try {
-
             /* PaymentIntent */
-            PaymentIntentDto paymentIntent = stripe.initPayment(request.getAmount(), request.getCurrency(), request.getPaymentType(), transactionId);
+            PaymentIntentDto paymentIntent = stripe.initPayment(request, transactionId);
+            paymentIntent.setTimestamp(request.getTimestamp());
+            FraudPrediction fraudPrediction = fraudService.getFraudScore(paymentIntent, transactionId);
 
             /* If status is requires_payment_method, then call /confirm */
-            if (paymentIntent.getStatus().equals(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription())) {
+            if (!fraudPrediction.isFraud() && paymentIntent.getStatus().equals(PaymentStatus.REQUIRES_PAYMENT_METHOD.getDescription())) {
                 paymentIntent = stripe.confirmIntent(paymentIntent);
             }
             paymentsDBAccess.insertInitTransaction(transactionId, request.getTransactionType(), request.getAmount(), request.getCurrency());
 
-            return createClientResponse(paymentIntent, transactionId);
+            return createClientResponse(paymentIntent, fraudPrediction, transactionId);
 
         } catch (Exception e) {
             log.error("Method initiatePayment - Exception: {}", e.getMessage());
@@ -60,7 +64,7 @@ public class PaymentService {
         }
     }
 
-    private PaymentInfo createClientResponse(PaymentIntentDto paymentIntentDto, String transactionId) {
+    private PaymentInfo createClientResponse(PaymentIntentDto paymentIntentDto, FraudPrediction fraudPrediction, String transactionId) {
         return PaymentInfo.builder()
                 .client_secret(paymentIntentDto.getClientSecret())
                 .transactionId(transactionId)
@@ -68,6 +72,8 @@ public class PaymentService {
                 .currency(paymentIntentDto.getCurrency())
                 .paymentType("card")
                 .status(paymentIntentDto.getStatus())
+                .isFraud(fraudPrediction.isFraud())
+                .fraudScore(fraudPrediction.isFraud() ? fraudPrediction.getFraudScore() : 0.0)
                 .message(paymentIntentDto.getDescription())
                 .build();
     }

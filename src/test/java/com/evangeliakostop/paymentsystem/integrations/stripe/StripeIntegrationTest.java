@@ -3,6 +3,8 @@ package com.evangeliakostop.paymentsystem.integrations.stripe;
 import com.evangeliakostop.paymentsystem.TestHelper;
 import com.evangeliakostop.paymentsystem.dto.PaymentIntentDto;
 import com.evangeliakostop.paymentsystem.exceptions.CustomException;
+import com.evangeliakostop.paymentsystem.models.PaymentRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,16 +31,32 @@ class StripeIntegrationTest {
     @InjectMocks
     private StripeIntegration stripeIntegration;
 
+    @BeforeEach
+    void setUp() {
+        stripeIntegration = new StripeIntegration(
+                "sk_test_123",                                  // stripeSecretKey
+                "http://localhost:9999/init",                   // stripeInitUrl
+                "http://localhost:9999/payment_intents/{id}/confirm", // stripeConfirmUrl (με {id})
+                restTemplateStripe
+        );
+    }
+
+
     @Test
     void initPayment_Success() {
 
         String jsonFilePath = "src/test/resources/StripeResponse_init_status_succeeded.json";
         PaymentIntentDto paymentIntentDto = TestHelper.readPaymentIntentFromFile(jsonFilePath);
 
+        PaymentRequest request = new PaymentRequest();
+        request.setAmount(4L);
+        request.setCurrency("usd");
+        request.setPaymentType("card");
+
         ResponseEntity<PaymentIntentDto> output = ResponseEntity.ok().body(paymentIntentDto);
         when(restTemplateStripe.exchange(anyString(), any(HttpMethod.class), any(), eq(PaymentIntentDto.class))).thenReturn(output);
 
-        PaymentIntentDto response = stripeIntegration.initPayment(4L, "usd", "card", "txn");
+        PaymentIntentDto response = stripeIntegration.initPayment(request, "txn");
 
         assertEquals(paymentIntentDto, response);
     }
@@ -46,10 +64,15 @@ class StripeIntegrationTest {
     @Test
     void initPayment_Success_Null() {
 
+        PaymentRequest request = new PaymentRequest();
+        request.setAmount(4L);
+        request.setCurrency("usd");
+        request.setPaymentType("card");
+
         ResponseEntity<PaymentIntentDto> output = ResponseEntity.ok().body(null);
         when(restTemplateStripe.exchange(anyString(), any(HttpMethod.class), any(), eq(PaymentIntentDto.class))).thenReturn(output);
 
-        assertThrows(CustomException.class, () -> stripeIntegration.initPayment(4L, "usd", "card", "txn"));
+        assertThrows(CustomException.class, () -> stripeIntegration.initPayment(request, "txn"));
     }
 
     @Test

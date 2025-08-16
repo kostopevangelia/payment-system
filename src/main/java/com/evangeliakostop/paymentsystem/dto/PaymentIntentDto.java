@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 
@@ -59,4 +60,7 @@ public class PaymentIntentDto {
     @JsonProperty("status")
     private String status; // Status of the payment intent (enum)
 
+    private LocalDateTime timestamp;
+    private String card;
+    private String transactionType;
 }

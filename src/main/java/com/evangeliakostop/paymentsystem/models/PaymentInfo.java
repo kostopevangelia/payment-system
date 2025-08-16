@@ -26,8 +26,8 @@ public class PaymentInfo {
     private String paymentType;
     @JsonProperty("status")
     private String status;
-    private double fraudScore;
     private boolean isFraud;
+    private double fraudScore;
     private String message;
 
     @Override

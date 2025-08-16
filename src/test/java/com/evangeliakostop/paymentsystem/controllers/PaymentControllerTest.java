@@ -8,12 +8,9 @@ import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.services.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +31,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @SpringBootTest
 @AutoConfigureMockMvc
 class PaymentControllerTest {
-
 
     @Mock
     private RestTemplate restTemplateStripe;
@@ -48,14 +43,11 @@ class PaymentControllerTest {
     @Mock
     private CommonService commonService;
     @Mock
-    private HttpSession session;
-    @Mock
     private PaymentService paymentService;
-
-    @InjectMocks
-    private PaymentController controller;
     @Autowired
     private ObjectMapper objectMapper;
+    @InjectMocks
+    private PaymentController controller;
 
 
     @Test
