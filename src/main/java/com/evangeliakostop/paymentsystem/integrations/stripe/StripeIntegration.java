@@ -57,7 +57,7 @@ public class StripeIntegration {
         headers.set("Authorization", "Bearer " + stripeSecretKey);  // Use your Stripe secret key here
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestParams, headers);
-        ResponseEntity<PaymentIntentDto> response = null;
+        ResponseEntity<PaymentIntentDto> response;
 
         try {
             response = restTemplateStripe.exchange(stripeInitUrl, HttpMethod.POST, entity, PaymentIntentDto.class);
