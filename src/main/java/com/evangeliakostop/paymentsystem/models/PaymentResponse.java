@@ -6,6 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 @EqualsAndHashCode(callSuper = false)
 public class PaymentResponse extends CommonResponse {
     private PaymentInfo paymentInfo;

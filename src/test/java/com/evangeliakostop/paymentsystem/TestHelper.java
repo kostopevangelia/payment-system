@@ -76,4 +76,15 @@ public class TestHelper {
     }
 
 
+    public static PaymentIntentDto createPaymentIntentDTOFromJson(String jsonFilePath) {
+        try {
+            // Read JSON as string
+            String jsonContent = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+            // Deserialize JSON into PaymentRequest
+            return objectMapper.readValue(jsonContent, PaymentIntentDto.class);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading JSON file: " + e.getMessage(), e);
+        }
+    }
 }
