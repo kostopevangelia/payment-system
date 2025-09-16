@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 @Configuration
 public class JdbcTemplateConfig {
 
-
     /**
      * Payment-System datasource.
      *
@@ -36,6 +35,4 @@ public class JdbcTemplateConfig {
     public JdbcTemplate jdbcTemplate(@Qualifier("paymentsDbTemplate") final DataSource dataSource) {
         return new JdbcTemplate(dataSource, false);
     }
-
-
 }
