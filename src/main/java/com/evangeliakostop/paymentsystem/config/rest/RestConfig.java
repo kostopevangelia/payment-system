@@ -65,28 +65,6 @@ public class RestConfig {
     }
 
     @Bean
-    @Qualifier("restTemplatePaymentMs")
-    public RestTemplate restTemplatePaymentMs(final RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
-
-        // Create CookieStore to store session cookies
-        CookieStore cookieStore = new BasicCookieStore();
-
-        CloseableHttpClient customHttpClient = HttpClients.custom()
-                .setDefaultCookieStore(cookieStore)
-                .setDefaultRequestConfig(requestConfig())  // Apply the custom request configuration
-                .build();
-
-        final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(customHttpClient);
-        factory.setConnectTimeout(30000);
-
-        final RestTemplate restTemplate = builder.customizers(new RestLoggingCustomiser(factory, correlationIdInterceptor, new RestInterceptor())).
-                build();
-        log.info("Generic Spring's RestTemplate Initialized for payments ms");
-
-        return restTemplate;
-    }
-
-    @Bean
     @Qualifier("restTemplateFraudApi")
     public RestTemplate restTemplateFraudApi(RestTemplateBuilder builder, final CloseableHttpClient httpClient) {
         CookieStore cookieStore = new BasicCookieStore();

@@ -11,6 +11,7 @@ import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.persistence.PaymentsDBAccess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,8 +32,7 @@ public class PaymentService {
     /**
      * Initiate Payment Service.
      *
-     * @param request       PaymentRequest
-     * @param transactionId String
+     * @param request PaymentRequest
      * @return PaymentInfo
      */
     public PaymentInfo initiatePayment(PaymentRequest request, String transactionId) {
@@ -51,9 +51,16 @@ public class PaymentService {
 
             return createClientResponse(paymentIntent, fraudPrediction, transactionId);
 
+        } catch (DataAccessException e) {
+            log.error("Method initiatePayment - Exception: {}", e.getMessage());
+            throw new CustomException(
+                    "PaymentService - error",
+                    e.getMessage(),
+                    transactionId,
+                    ErrorLevelEnum.APPLICATION_ERROR
+            );
         } catch (Exception e) {
             log.error("Method initiatePayment - Exception: {}", e.getMessage());
-
             throw new CustomException(
                     "PaymentService - error",
                     e.getMessage(),

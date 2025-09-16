@@ -80,7 +80,7 @@ class PaymentControllerTest {
 
         when(paymentService.initiatePayment(any(), anyString())).thenReturn(paymentInfo);
 
-        ResponseEntity<PaymentResponse> response = controller.initPayment(request, httpSession);
+        ResponseEntity<PaymentResponse> response = controller.initPayment(request);
 
         assertNotNull(response.getBody());
         assertEquals(mockedResponse.getPaymentInfo().getAmount(), response.getBody().getPaymentInfo().getAmount());

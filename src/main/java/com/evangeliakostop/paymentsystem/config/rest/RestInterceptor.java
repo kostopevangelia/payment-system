@@ -15,8 +15,6 @@ import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.Optional;
 
-import static org.springframework.util.StreamUtils.copyToString;
-
 @Slf4j
 public class RestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -33,15 +31,25 @@ public class RestInterceptor implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        Charset charset = getCharset(request);
 
         log.info("Request: {} {} {}", request.getMethod(), request.getURI(), new String(body, getCharset(request)));
 
         ClientHttpResponse response = execution.execute(request, body);
         stopWatch.stop();
 
-        log.info("{} {} {} {} {}", new Timestamp(System.currentTimeMillis()), "OUTB_CALL", request.getURI(), response.getStatusCode().value(), stopWatch.getLastTaskTimeMillis());
+        byte[] responseBytes = response.getBody() != null ? response.getBody().readAllBytes() : new byte[0];
+        CachedResponse cached = new CachedResponse(response, responseBytes);
 
-        log.info("Response: {} {} {}", response.getHeaders(), response.getStatusCode().value(), copyToString(response.getBody(), getCharset(response)));
+
+        String respBody = new String(responseBytes, getCharset(cached));
+
+        log.info("{} {} {} {} {}", new Timestamp(System.currentTimeMillis()), "OUTB_CALL",
+                request.getURI(),
+                response.getStatusCode().value(),
+                stopWatch.getLastTaskTimeMillis());
+
+        log.info("Response: {} {} {}", request.getMethod(), request.getURI(), respBody);
 
         return response;
     }
