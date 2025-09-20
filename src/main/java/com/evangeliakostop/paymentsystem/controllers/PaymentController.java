@@ -2,7 +2,7 @@ package com.evangeliakostop.paymentsystem.controllers;
 
 import com.evangeliakostop.paymentsystem.common.utils.CommonService;
 import com.evangeliakostop.paymentsystem.common.utils.UniqueIdGenerator;
-import com.evangeliakostop.paymentsystem.models.PaymentInfo;
+import com.evangeliakostop.paymentsystem.config.PaymentHttpStatusResolver;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
 import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.services.PaymentService;
@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +31,12 @@ public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentService paymentService;
+    private final PaymentHttpStatusResolver statusResolver;
 
     @Autowired
-    public PaymentController(PaymentService paymentService, CommonService commonService) {
+    public PaymentController(PaymentService paymentService, CommonService commonService, PaymentHttpStatusResolver statusResolver) {
         this.paymentService = paymentService;
+        this.statusResolver = statusResolver;
     }
 
     @Operation(summary = "Init payment")
@@ -76,19 +77,9 @@ public class PaymentController {
 
         String transactionId = UniqueIdGenerator.generateSecureToken();
         try {
-            PaymentInfo paymentInfo = paymentService.initiatePayment(request, transactionId);
+            PaymentResponse paymentResponse = paymentService.initiatePayment(request, transactionId);
 
-            PaymentResponse response = new PaymentResponse();
-            if (paymentInfo.isFraud()) {
-                response.setCode(409);
-                response.setMessage("Cannot complete payment: Transaction is marked as fraudulent.");
-            } else {
-                response.setCode(200);
-                response.setMessage("Intent Created");
-                response.setPaymentInfo(paymentInfo);
-            }
-
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.status(statusResolver.resolve(paymentResponse)).body(paymentResponse);
 
         } catch (Exception e) {
             PaymentResponse response = new PaymentResponse();
