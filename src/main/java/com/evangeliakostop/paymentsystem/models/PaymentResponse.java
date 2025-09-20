@@ -2,6 +2,7 @@ package com.evangeliakostop.paymentsystem.models;
 
 import lombok.*;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter

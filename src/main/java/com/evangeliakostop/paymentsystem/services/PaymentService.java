@@ -8,6 +8,7 @@ import com.evangeliakostop.paymentsystem.integrations.stripe.StripeIntegration;
 import com.evangeliakostop.paymentsystem.models.FraudPrediction;
 import com.evangeliakostop.paymentsystem.models.PaymentInfo;
 import com.evangeliakostop.paymentsystem.models.PaymentRequest;
+import com.evangeliakostop.paymentsystem.models.PaymentResponse;
 import com.evangeliakostop.paymentsystem.persistence.PaymentsDBAccess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class PaymentService {
      * @param request PaymentRequest
      * @return PaymentInfo
      */
-    public PaymentInfo initiatePayment(PaymentRequest request, String transactionId) {
+    public PaymentResponse initiatePayment(PaymentRequest request, String transactionId) {
 
         try {
             /* PaymentIntent */
@@ -71,8 +72,9 @@ public class PaymentService {
         }
     }
 
-    private PaymentInfo createClientResponse(PaymentIntentDto paymentIntentDto, FraudPrediction fraudPrediction, String transactionId) {
-        return PaymentInfo.builder()
+    private PaymentResponse createClientResponse(PaymentIntentDto paymentIntentDto, FraudPrediction fraudPrediction, String transactionId) {
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
                 .client_secret(paymentIntentDto.getClientSecret())
                 .transactionId(transactionId)
                 .amount(String.valueOf(paymentIntentDto.getAmount()))
@@ -83,5 +85,9 @@ public class PaymentService {
                 .fraudScore(fraudPrediction.isFraud() ? fraudPrediction.getFraudScore() : 0.0)
                 .message(paymentIntentDto.getDescription())
                 .build();
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setPaymentInfo(paymentInfo);
+
+        return paymentResponse;
     }
 }
