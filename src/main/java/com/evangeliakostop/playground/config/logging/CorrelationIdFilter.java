@@ -21,7 +21,7 @@ public class CorrelationIdFilter implements Filter {
             MDC.put(CORRELATION_ID, correlationId);
             chain.doFilter(request, response);
         } finally {
-            MDC.remove(CORRELATION_ID); // Always clean up!
+            MDC.remove(CORRELATION_ID);
         }
     }
 }

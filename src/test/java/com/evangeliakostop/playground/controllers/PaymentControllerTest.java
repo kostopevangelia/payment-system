@@ -1,7 +1,6 @@
 package com.evangeliakostop.playground.controllers;
 
 import com.evangeliakostop.playground.TestHelper;
-import com.evangeliakostop.playground.utils.CommonService;
 import com.evangeliakostop.playground.config.PaymentHttpStatusResolver;
 import com.evangeliakostop.playground.dto.PaymentIntentDto;
 import com.evangeliakostop.playground.integrations.stripe.StripeIntegration;
@@ -12,7 +11,6 @@ import com.evangeliakostop.playground.services.FraudService;
 import com.evangeliakostop.playground.services.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +23,6 @@ import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

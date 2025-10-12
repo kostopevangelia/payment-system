@@ -1,11 +1,11 @@
 package com.evangeliakostop.playground.controllers;
 
-import com.evangeliakostop.playground.utils.CommonService;
-import com.evangeliakostop.playground.utils.UniqueIdGenerator;
 import com.evangeliakostop.playground.config.PaymentHttpStatusResolver;
 import com.evangeliakostop.playground.models.PaymentRequest;
 import com.evangeliakostop.playground.models.PaymentResponse;
 import com.evangeliakostop.playground.services.PaymentService;
+import com.evangeliakostop.playground.utils.CommonService;
+import com.evangeliakostop.playground.utils.UniqueIdGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -13,8 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
@@ -27,8 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("payments")
 @Slf4j
 public class PaymentController {
-
-    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentService paymentService;
     private final PaymentHttpStatusResolver statusResolver;
@@ -44,7 +40,9 @@ public class PaymentController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Intent Created",
-                    content = @Content(schema = @Schema(implementation = PaymentResponse.class))
+                    content = @Content(
+                            schema = @Schema(implementation = PaymentResponse.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -68,7 +66,6 @@ public class PaymentController {
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(value = "{\"code\":500,\"message\":\"Something Went Wrong.\",\"timestamp\":\"2025-09-14T20:35:12Z\"}")
-
                     )
             )
     })

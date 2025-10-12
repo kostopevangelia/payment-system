@@ -1,4 +1,4 @@
-package com.evangeliakostop.playground.config.rest;
+package com.evangeliakostop.playground.config.rest.RestLogging;
 
 import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;

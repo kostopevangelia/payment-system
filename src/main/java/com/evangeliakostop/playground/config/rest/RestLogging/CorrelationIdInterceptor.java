@@ -1,4 +1,4 @@
-package com.evangeliakostop.playground.config.rest;
+package com.evangeliakostop.playground.config.rest.RestLogging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;

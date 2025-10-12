@@ -1,4 +1,4 @@
-package com.evangeliakostop.playground.config.rest;
+package com.evangeliakostop.playground.config.rest.RestLogging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -51,6 +51,6 @@ public class RestInterceptor implements ClientHttpRequestInterceptor {
 
         log.info("Response: {} {} {}", request.getMethod(), request.getURI(), respBody);
 
-        return response;
+        return cached;
     }
 }

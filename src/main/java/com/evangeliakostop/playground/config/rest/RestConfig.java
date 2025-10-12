@@ -1,5 +1,8 @@
 package com.evangeliakostop.playground.config.rest;
 
+import com.evangeliakostop.playground.config.rest.RestLogging.CorrelationIdInterceptor;
+import com.evangeliakostop.playground.config.rest.RestLogging.RestInterceptor;
+import com.evangeliakostop.playground.config.rest.RestLogging.RestLoggingCustomiser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;

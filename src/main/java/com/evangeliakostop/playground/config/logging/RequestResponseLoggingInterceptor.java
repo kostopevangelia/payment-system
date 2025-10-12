@@ -23,7 +23,6 @@ public class RequestResponseLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        // Wrapping is done by filter, so just return true here
         return true;
     }
 

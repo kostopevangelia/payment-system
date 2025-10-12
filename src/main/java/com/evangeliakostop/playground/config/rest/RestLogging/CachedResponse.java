@@ -1,4 +1,4 @@
-package com.evangeliakostop.playground.config.rest;
+package com.evangeliakostop.playground.config.rest.RestLogging;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
