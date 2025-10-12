@@ -9,9 +9,9 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.evangeliakostop</groupId>
-	<artifactId>playground</artifactId>
+	<artifactId>payment-system</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>playground</name>
+	<name>payment-system</name>
 	<description>Spring Boot Project for Payments</description>
 	<url/>
 	<licenses>
