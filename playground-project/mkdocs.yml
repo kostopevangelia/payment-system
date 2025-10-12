@@ -1,0 +1,25 @@
+site_name: PlaygroundDocs
+plugins:
+  - search
+  - mermaid2
+markdown_extensions:
+  - admonition
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.highlight:
+        use_pygments: true
+nav:
+  - Home: index.md
+  - About: about.md
+  - Data Access Configurations: data.md
+  - REST Configurations: rest.md
+  - Logging Configurations: logging.md
+theme:
+  name: material
+# choose ONE style for both modes
+pygments_style: monokai          # try: material, github, dracula, today-night
+pygments_dark_style: monokai
+watch:
+  - docs
+  - mkdocs.yml
+
