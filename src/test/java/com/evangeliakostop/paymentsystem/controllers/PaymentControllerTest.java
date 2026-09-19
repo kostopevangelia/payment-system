@@ -74,7 +74,7 @@ class PaymentControllerTest {
         String jsonPaymentIntentConfirmed = "src/test/resources/StripeResponse_Confirm.json";
         PaymentIntentDto paymentIntentConfirmed = TestHelper.createPaymentIntentDTOFromJson(jsonPaymentIntentConfirmed);
 
-        String jsonPaymentResponse = "src/Test/resources/PaymentResponse.json";
+        String jsonPaymentResponse = "src/test/resources/PaymentResponse.json";
         PaymentResponse paymentResponse = TestHelper.createPaymentResponseFromJson(jsonPaymentResponse);
 
         when(stripe.initPayment(any(), anyString())).thenReturn(paymentIntentDto);
