@@ -17,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -64,6 +62,20 @@ public class ControllerIT {
 
         String jsonResponse = "src/test/resources/PaymentResponse.json";
         PaymentResponse mockedResponse = TestHelper.createPaymentResponseFromJson(jsonResponse);
+
+        PaymentIntentDto paymentIntent = new PaymentIntentDto();
+        paymentIntent.setId("pi_test_123");
+        paymentIntent.setAmount(Math.toIntExact(request.getAmount()));
+        paymentIntent.setCurrency(request.getCurrency());
+        paymentIntent.setStatus("succeeded");
+
+        when(restTemplateStripe.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                any(HttpEntity.class),
+                eq(PaymentIntentDto.class),
+                anyMap()
+        )).thenReturn(new ResponseEntity<>(paymentIntent, HttpStatus.OK));
 
         MvcResult result = mockMvc.perform(post("/payments/init")
                         .accept(MediaType.APPLICATION_JSON)
