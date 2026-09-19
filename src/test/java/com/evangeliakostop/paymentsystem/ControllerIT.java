@@ -73,8 +73,7 @@ public class ControllerIT {
                 anyString(),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
-                eq(PaymentIntentDto.class),
-                anyMap()
+                eq(PaymentIntentDto.class)
         )).thenReturn(new ResponseEntity<>(paymentIntent, HttpStatus.OK));
 
         MvcResult result = mockMvc.perform(post("/payments/init")
