@@ -49,7 +49,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build fraud-detection image
-        run: docker build -t fraud-detection ../fraud-detection
+        run: docker build -t fraud-detection ./fraud-detection
 
       - name: Start fraud-detection
         run: docker run -d --name fraud-detection -p 8000:8000 fraud-detection
