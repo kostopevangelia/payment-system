@@ -1,0 +1,84 @@
+name: CI-Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3307/payment_service
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+
+      STRIPE_SECRET_KEY: test-stripe-secret
+      STRIPE_INIT_URL: http://localhost:18080/stripe/init
+      STRIPE_CONFIRM_URL: http://localhost:18080/stripe/confirm
+
+      FRAUD_API_URL: http://localhost:8000/predict-fraud
+      FRAUD_API_SECRET_KEY: test-fraud-secret
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_DATABASE: payment_service
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - 3307:3306
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout fraud-detection
+        uses: actions/checkout@v4
+        with:
+          repository: kostopevangelia/fraud-detection
+          path: fraud-detection
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build fraud-detection image
+        run: docker build -t fraud-detection ./fraud-detection
+
+      - name: Start fraud-detection
+        run: docker run -d --name fraud-detection -p 8000:8000 fraud-detection
+
+      - name: Run database migrations
+        run: |
+          docker run --rm \
+            --network host \
+            -v "${{ github.workspace }}/db/migrations:/flyway/sql:ro" \
+            flyway/flyway:10-alpine \
+            -url="jdbc:mysql://localhost:3307/payment_service?allowPublicKeyRetrieval=true&useSSL=false" \
+            -user="root" \
+            -password="${{ secrets.MYSQL_ROOT_PASSWORD }}" \
+            -locations="filesystem:/flyway/sql" \
+            -baselineOnMigrate=true \
+            migrate
+
+      - name: Check database schema
+        run: |
+          docker run --rm \
+            --network host \
+            mysql:8 \
+            mysql \
+            -h127.0.0.1 \
+            -P3307 \
+            -uroot \
+            -p"${{ secrets.MYSQL_ROOT_PASSWORD }}" \
+            payment_service \
+            -e "DESCRIBE transactions;"
+
+      - name: Build and test
+        run: mvn clean install
