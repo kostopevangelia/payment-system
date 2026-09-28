@@ -14,17 +14,6 @@ import javax.sql.DataSource;
 public class JdbcTemplateConfig {
 
     /**
-     * Payment-System datasource.
-     *
-     * @return the data source.
-     */
-    @Bean("paymentsDbTemplate")
-    @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource paymentsDatasource() {
-        return DataSourceBuilder.create().build();
-    }
-
-    /**
      * Jdbc Template.
      *
      * @param dataSource the data source
