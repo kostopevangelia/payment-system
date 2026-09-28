@@ -21,7 +21,7 @@ public class JdbcTemplateConfig {
      */
     @Primary
     @Bean
-    public JdbcTemplate jdbcTemplate(@Qualifier("paymentsDbTemplate") final DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource, false);
     }
 }
