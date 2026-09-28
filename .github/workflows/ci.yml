@@ -86,4 +86,5 @@ jobs:
             -e "DESCRIBE transactions;"
 
       - name: Build and test
+        working-directory: payment-system
         run: mvn clean install
